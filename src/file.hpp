@@ -18,7 +18,7 @@ public:
   void Write(const void *data, size_t size);
 
   void Flush();
-  
+
   size_t BytesToReadLeft();
   size_t GetSize();
 
@@ -27,7 +27,9 @@ public:
 
   void SetReadPos(size_t pos);
   void SetWritePos(size_t pos);
-  
+
+  void MoveWriteCursorToEnd();
+
   bool IsOpen();
   void Close();
 };

@@ -15,7 +15,9 @@ File::~File() {
 
 void File::Read(void *data, size_t size) { file.read((char *)data, size); }
 
-void File::Write(const void *data, size_t size) { file.write((char *)data, size); }
+void File::Write(const void *data, size_t size) {
+  file.write((char *)data, size);
+}
 
 void File::Flush() { file.flush(); }
 
@@ -39,6 +41,8 @@ size_t File::GetWritePos() { return (size_t)file.tellp(); }
 void File::SetReadPos(size_t pos) { file.seekg(pos, std::ios::beg); }
 
 void File::SetWritePos(size_t pos) { file.seekp(pos, std::ios::beg); }
+
+void File::MoveWriteCursorToEnd() { file.seekp(0, std::ios::end); }
 
 bool File::IsOpen() { return file.is_open(); }
 
