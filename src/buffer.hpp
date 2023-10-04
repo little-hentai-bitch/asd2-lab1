@@ -6,21 +6,24 @@ template <typename T> class Buffer {
 private:
   static int buffers_count;
 
-  u_ptr<File> file;
+  s_ptr<File> file;
   fs::path path;
   size_t size;
 
 public:
   Buffer();
+  Buffer(s_ptr<File> file);
   Buffer(Buffer &) = delete;
   Buffer &operator=(Buffer &) = delete;
   ~Buffer();
 
   size_t GetSize();
-  T &operator[](size_t index);
+  T Get(int index);
+  void Set(int index, T val);
   void PushBack(T val);
   void Resize(size_t size);
   void Clear();
+  void SaveAs(fs::path path);
 };
 
 template <typename T> Buffer<T>::Buffer() {
@@ -35,14 +38,36 @@ template <typename T> Buffer<T>::Buffer() {
   file.reset(new File(path, true));
 }
 
+template <typename T> Buffer<T>::Buffer(s_ptr<File> file) {
+  size = file->GetSize() / sizeof(T);
+
+  this->file = file;
+  path.clear();
+}
+
 template <typename T> Buffer<T>::~Buffer() {
+  if (path.empty()) {
+    return;
+  }
+
   file->Close();
-  file.release();
+  file.reset();
 
   fs::remove(path);
 }
 
 template <typename T> size_t Buffer<T>::GetSize() { return size; }
+
+template <typename T> T Buffer<T>::Get(int index) {
+  file->SetReadPos(sizeof(T) * index);
+
+  T val;
+  file->Read(&val, sizeof(val));
+
+  return val;
+}
+
+template <typename T> void Buffer<T>::Set(int index, T val) {}
 
 template <typename T> void Buffer<T>::PushBack(T val) {
   file->SetWritePos(size * sizeof(T));
@@ -66,3 +91,12 @@ template <typename T> void Buffer<T>::Resize(size_t size) {
 }
 
 template <typename T> void Buffer<T>::Clear() { size = 0; }
+
+template <typename T> void Buffer<T>::SaveAs(fs::path path) {
+  file->Flush();
+  file->Close();
+
+  fs::rename(this->path, path);
+}
+
+template <typename T> int Buffer<T>::buffers_count = 0;

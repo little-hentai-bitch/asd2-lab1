@@ -17,6 +17,9 @@ public:
   void Read(void *data, size_t size);
   void Write(const void *data, size_t size);
 
+  template <typename T> T Read();
+  template <typename T> void Write(const T *data);
+
   void Flush();
 
   size_t BytesToReadLeft();
@@ -33,3 +36,14 @@ public:
   bool IsOpen();
   void Close();
 };
+
+template <typename T> T File::Read() {
+  T val;
+  Read(&val, sizeof(T));
+
+  return val;
+}
+
+template <typename T> void File::Write(const T *data) {
+  Write(data, sizeof(T));
+}
