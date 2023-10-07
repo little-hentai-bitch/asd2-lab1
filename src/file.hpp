@@ -1,6 +1,8 @@
 #pragma once
 #include <filesystem>
 #include <fstream>
+#include <boost/iostreams/code_converter.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 
 namespace fs = std::filesystem;
 

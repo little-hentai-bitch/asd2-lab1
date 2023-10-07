@@ -1,11 +1,20 @@
 #include "application.hpp"
 
+auto &now = chrono::high_resolution_clock::now;
+
 Application::Application() {}
 
 void Application::Run(fs::path input_file, fs::path output_file) {
   this->input_file.reset(new File(input_file, false));
 
+  time_point sort_start_time = now();
+
   SortFile();
+
+  time_point sort_end_time = now();
+
+  duration sort_time = sort_end_time - sort_start_time;
+  PrintTime(sort_time);
 
   bool is_sorted = CheckSort();
   if (is_sorted) {
@@ -15,6 +24,20 @@ void Application::Run(fs::path input_file, fs::path output_file) {
   }
 
   Cleanup();
+}
+
+void Application::PrintTime(duration time) {
+  const long nanoseconds_in_second =
+      chrono::duration_cast<chrono::nanoseconds>(chrono::seconds(1)).count();
+
+  long sort_time_in_nanoseconds =
+      chrono::duration_cast<chrono::nanoseconds>(time).count();
+
+  long double sort_time_in_seconds =
+      sort_time_in_nanoseconds / (long double)nanoseconds_in_second;
+
+  std::cout << "sort time is " << sort_time_in_seconds << " seconds"
+            << std::endl;
 }
 
 void Application::SortFile() {
@@ -32,12 +55,11 @@ void Application::SortFile() {
   int sequences_count = MergeSequences(input_buffer, b_buffers);
 
   while (sequences_count > 1) {
-	std::cout << "seq count " << sequences_count << std::endl;
-    sequences_count = MergeSequences(b_buffers, c_buffers);
-    
-    for (int i = 0; i < b_buffers.size(); i++) {
-      b_buffers[i]->Clear();
+    for (int i = 0; i < c_buffers.size(); i++) {
+      c_buffers[i]->Clear();
     }
+
+    sequences_count = MergeSequences(b_buffers, c_buffers);
 
     std::swap(b_buffers, c_buffers);
   }
@@ -82,6 +104,10 @@ int Application::MergeSequences(
     sequences_count++;
   }
 
+  for (auto &buf : dst_buffers) {
+    buf->Flush();
+  }
+
   return sequences_count;
 }
 
@@ -124,7 +150,9 @@ void Application::PrintBuffer(s_ptr<Buffer<int64_t>> buffer) {
 }
 
 bool Application::CheckSort() {
-  this->output_file.reset(new File("output", true));
+  u_ptr<File> output_file;
+  output_file.reset(new File("output", true));
+
   int numbers = output_file->GetSize() / sizeof(uint64_t);
   output_file->SetReadPos(0);
 
@@ -141,7 +169,4 @@ bool Application::CheckSort() {
   return true;
 }
 
-void Application::Cleanup() {
-  input_file->Close();
-  output_file->Close();
-}
+void Application::Cleanup() { input_file->Close(); }
