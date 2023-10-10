@@ -36,7 +36,8 @@ size_t File::GetSize() {
 
 size_t File::GetReadPos() { return (size_t)file.tellg(); }
 
-size_t File::GetWritePos() { return (size_t)file.tellp(); }
+size_t File::GetWritePos() {
+  return (size_t) file.tellp(); }
 
 void File::SetReadPos(size_t pos) { file.seekg(pos, std::ios::beg); }
 

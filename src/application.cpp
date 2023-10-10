@@ -151,7 +151,7 @@ void Application::PrintBuffer(s_ptr<Buffer<int64_t>> buffer) {
 
 bool Application::CheckSort() {
   u_ptr<File> output_file;
-  output_file.reset(new File("output", true));
+  output_file.reset(new File("output", false));
 
   int numbers = output_file->GetSize() / sizeof(uint64_t);
   output_file->SetReadPos(0);
