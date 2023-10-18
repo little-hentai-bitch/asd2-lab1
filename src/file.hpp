@@ -9,7 +9,8 @@ namespace fs = std::filesystem;
 class File {
 private:
   std::fstream file;
-
+  fs::path path;
+  
 public:
   File(fs::path path, bool trunc);
   File(File &) = delete;
@@ -22,8 +23,10 @@ public:
   template <typename T> T Read();
   template <typename T> void Write(const T *data);
 
+  void SaveAs(fs::path path);
+  
   void Flush();
-
+  
   size_t BytesToReadLeft();
   size_t GetSize();
 
@@ -35,6 +38,8 @@ public:
 
   void MoveWriteCursorToEnd();
 
+  void ShrinkToSize(size_t size);
+  
   bool IsOpen();
   void Close();
 };

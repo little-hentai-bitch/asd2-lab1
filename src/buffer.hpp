@@ -82,7 +82,7 @@ template <typename T> size_t Buffer<T>::GetSize() { return size; }
 
 template <typename T> T Buffer<T>::Get(int index) {
   if (IsInCache(write_cache, index)) {
-    size_t byte_index_in_cache = ByteIndexInCahce(write_cache, size);
+    size_t byte_index_in_cache = ByteIndexInCahce(write_cache, index);
     return *(T *)&write_cache.data[byte_index_in_cache];
   }
 
@@ -98,7 +98,9 @@ template <typename T> T Buffer<T>::Get(int index) {
 
 template <typename T> void Buffer<T>::PushBack(T val) {
   if (!IsInCache(write_cache, size)) {
-    Flush();
+    if (write_cache.size) {
+      Flush();
+    }
     LoadToWriteCache(size);
   }
 
@@ -146,6 +148,8 @@ template <typename T> void Buffer<T>::Flush() {
   file->SetWritePos(write_cache.offset);
   file->Write(write_cache.data.data(), bytes_to_write);
   file->Flush();
+
+  read_cache = CachedData{};
 }
 
 template <typename T>

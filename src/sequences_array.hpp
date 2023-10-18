@@ -1,17 +1,16 @@
 #pragma once
-#include "buffer.hpp"
+#include "input_buffer.hpp"
 #include <iostream>
 #include <vector>
 
 template <typename T> class SequencesArray {
 private:
-  s_ptr<Buffer<T>> buffer;
-  T prev_element;
+  s_ptr<InputBuffer<T>> buffer;
   T current_element;
   size_t pos;
 
 public:
-  SequencesArray(s_ptr<Buffer<T>> buffer);
+  SequencesArray(s_ptr<InputBuffer<T>> buffer);
   SequencesArray(SequencesArray<T> &) = delete;
   SequencesArray<T> &operator=(SequencesArray<T> &) = delete;
 
@@ -22,13 +21,12 @@ public:
 };
 
 template <typename T>
-SequencesArray<T>::SequencesArray(s_ptr<Buffer<T>> buffer) {
+SequencesArray<T>::SequencesArray(s_ptr<InputBuffer<T>> buffer) {
   this->buffer = buffer;
   pos = 0;
 }
 
 template <typename T> T SequencesArray<T>::NextElement() {
-  current_element = prev_element;
   current_element = buffer->Get(pos);
 
   pos++;
@@ -37,12 +35,8 @@ template <typename T> T SequencesArray<T>::NextElement() {
 }
 
 template <typename T> bool SequencesArray<T>::IsSequenceEnd() {
-  if (!pos) {
-    return false;
-  }
-
-  if (pos == buffer->GetSize()) {
-    return true;
+  if (pos == buffer->GetSize() || !pos) {
+    return pos;
   }
 
   return buffer->Get(pos) < current_element;

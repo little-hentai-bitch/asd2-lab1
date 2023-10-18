@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13.4)
 project(asd-lab1)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS -m64)
+set(CMAKE_CXX_FLAGS "-m64 -g -pg")
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
 
 set(CMAKE_BUILD_TYPE Release)
